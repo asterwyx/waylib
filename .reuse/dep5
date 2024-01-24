@@ -4,7 +4,7 @@ Upstream-Contact: JiDe Zhang <zccrs@live.com>
 Source: https://github.com/vioken/waylib
 
 # ci
-Files: .github/* .obs/*.yml
+Files: .github/workflows/archlinux-build-wlroots-17.yaml .obs/*.yml
 Copyright: None
 License: CC0-1.0
 
