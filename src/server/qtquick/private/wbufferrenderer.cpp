@@ -52,7 +52,7 @@ extern "C" {
 
 QW_USE_NAMESPACE
 WAYLIB_SERVER_BEGIN_NAMESPACE
-
+Q_DECLARE_LOGGING_CATEGORY(lcBuffer);
 struct PixmanRegion
 {
     PixmanRegion() {
@@ -390,6 +390,7 @@ QWBuffer *WBufferRenderer::beginRender(const QSize &pixelSize, qreal devicePixel
     auto lastRT = m_renderHelper->lastRenderTarget();
     auto rt = m_renderHelper->acquireRenderTarget(wd->renderControl, buffer);
     if (rt.isNull()) {
+        qCInfo(lcBuffer) << "Unlock buffer" << buffer << "in beginRender.";
         buffer->unlock();
         return nullptr;
     }
@@ -588,6 +589,7 @@ void WBufferRenderer::endRender()
     m_lastBuffer = buffer;
     m_damageRing.rotate();
     m_swapchain->setBufferSubmitted(buffer);
+    qCInfo(lcBuffer) << "Unlock buffer" << buffer << "in endRender.";
     buffer->unlock();
 
 #ifndef QT_NO_OPENGL

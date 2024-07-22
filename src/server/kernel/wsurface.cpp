@@ -15,6 +15,7 @@
 #include <qwbuffer.h>
 #include <qwfractionalscalemanagerv1.h>
 #include <QDebug>
+#include <QLoggingCategory>
 
 extern "C" {
 #define static
@@ -26,7 +27,7 @@ extern "C" {
 
 QW_USE_NAMESPACE
 WAYLIB_SERVER_BEGIN_NAMESPACE
-
+Q_DECLARE_LOGGING_CATEGORY(lcBuffer);
 WSurfacePrivate::WSurfacePrivate(WSurface *qq, QWSurface *handle)
     : WWrapObjectPrivate(qq)
 {
@@ -35,8 +36,10 @@ WSurfacePrivate::WSurfacePrivate(WSurface *qq, QWSurface *handle)
 
 WSurfacePrivate::~WSurfacePrivate()
 {
-    if (buffer)
+    if (buffer) {
+        qCInfo(lcBuffer) << "Unlock buffer" << buffer << "in ~WSurfacePrivate.";
         buffer->unlock();
+    }
 }
 
 wl_client *WSurfacePrivate::waylandClient() const
@@ -132,6 +135,7 @@ void WSurfacePrivate::setBuffer(QWBuffer *newBuffer)
             Q_ASSERT(clientBuffer->handle()->n_ignore_locks > 0);
             clientBuffer->handle()->n_ignore_locks--;
         }
+        qCInfo(lcBuffer) << "Unlock buffer" << buffer << "in setBuffer.";
         buffer->unlock();
     }
 
@@ -139,7 +143,7 @@ void WSurfacePrivate::setBuffer(QWBuffer *newBuffer)
         if (auto clientBuffer = QWClientBuffer::get(newBuffer)) {
             clientBuffer->handle()->n_ignore_locks++;
         }
-
+        qCInfo(lcBuffer) << "Lock buffer" << newBuffer << "in setBuffer.";
         newBuffer->lock();
         buffer = newBuffer;
     } else {

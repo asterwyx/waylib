@@ -20,6 +20,7 @@
 #include <QSGImageNode>
 #include <QSGRenderNode>
 #include <private/qquickitem_p.h>
+#include <QLoggingCategory>
 
 extern "C" {
 #define static
@@ -30,7 +31,7 @@ extern "C" {
 
 QW_USE_NAMESPACE
 WAYLIB_SERVER_BEGIN_NAMESPACE
-
+Q_LOGGING_CATEGORY(lcBuffer, "waylib.buffer");
 class WSGTextureProvider : public WBufferTextureProvider
 {
     friend class WSurfaceItemContent;
@@ -450,8 +451,10 @@ WSGTextureProvider::WSGTextureProvider(WSurfaceItemContent *item)
 
 WSGTextureProvider::~WSGTextureProvider()
 {
-    if (buffer)
+    if (buffer) {
+        qCInfo(lcBuffer) << "Unlock buffer" << buffer << "in ~WSGTextureProvider.";
         buffer->unlock();
+    }
     buffer = nullptr;
 }
 
@@ -489,12 +492,16 @@ void WSGTextureProvider::doUpdateTexture()
     if (qwtexture)
         qwtexture.reset();
 
-    if (buffer)
+    if (buffer) {
+        qCInfo(lcBuffer) << "Unlock buffer" << buffer << "in doUpdateTexture.";
         buffer->unlock();
+    }
     buffer = item->d_func()->surface->buffer();
     // lock buffer to ensure the WSurfaceItem can keep the last frame after WSurface destroyed.
-    if (buffer)
+    if (buffer) {
+        qCInfo(lcBuffer) << "Lock buffer" << buffer << "in doUpdateTexture.";
         buffer->lock();
+    }
 
     dwtexture->setHandle(ensureTexture());
     Q_EMIT textureChanged();

@@ -31,6 +31,7 @@ extern "C" {
 
 QW_USE_NAMESPACE
 WAYLIB_SERVER_BEGIN_NAMESPACE
+Q_DECLARE_LOGGING_CATEGORY(lcBuffer);
 
 class WOutputHelperPrivate : public WObjectPrivate
 {
@@ -191,6 +192,7 @@ std::pair<QWBuffer *, QQuickRenderTarget> WOutputHelper::acquireRenderTarget(QQu
     }
     auto rt = d->renderHelper->acquireRenderTarget(rc, buffer);
     if (rt.isNull()) {
+        qCInfo(lcBuffer) << "Unlock buffer" << buffer << "in acquireRenderTarget.";
         buffer->unlock();
         return {};
     }
@@ -287,6 +289,7 @@ bool WOutputHelper::testCommit(QWBuffer *buffer, const wlr_output_layer_state_ar
     bool ok = d->qwoutput()->testState(&state);
     if (state.committed & WLR_OUTPUT_STATE_BUFFER) {
         Q_ASSERT(buffer);
+        qCInfo(lcBuffer) << "Unlock buffer" << buffer << "in testCommit";
         buffer->unlock();
     }
 
