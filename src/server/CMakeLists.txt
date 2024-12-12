@@ -196,6 +196,8 @@ set(HEADERS
     utils/wimagebuffer.h
     utils/wcursorimage.h
     utils/WCursorImage
+    utils/wrappointer.h
+    utils/WrapPointer
 
     protocols/wxdgshell.h
     protocols/WXdgShell
